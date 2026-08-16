@@ -188,7 +188,30 @@ npm install
 
 ---
 
-## 6. Deployment (Render)
+## 6. Local API vs Deployed API
+
+You have **two running copies** of the same API — one on your machine, one on Render.
+They behave identically but are completely independent.
+
+| | Local API | Deployed API (Render) |
+|---|---|---|
+| Address | `http://localhost:3000` | `https://users-api-lowp.onrender.com` |
+| Who can reach it | Only your machine | Anyone on the internet |
+| Data file | `api/data/users.json` on your machine | Its own copy stored on Render's server |
+| Persistence | Keeps data as long as you keep the file | **Wiped on restart/redeploy** (free tier) |
+| Availability | Manual — you start it with `npm run api:dev` | Always up, but sleeps after ~15 min idle |
+| When to use | Local development, testing offline | Default — real usage from anywhere |
+
+**The most important difference: the data is NOT shared.**
+
+- Creating a user through the MCP client (default) saves it **on Render only**.
+- To save locally instead, set `$env:API_BASE_URL = "http://localhost:3000"` and run the local API.
+- Deleting `api/data/users.json` does **not** touch Render's data, but it **breaks the local API**
+  (reads/writes fail with 500 errors). Keep the file if you want the local option.
+
+---
+
+## 7. Deployment (Render)
 
 Your API is **online** — anyone in the world can call it at `https://users-api-lowp.onrender.com`.
 
@@ -216,12 +239,12 @@ Your machine ──git push──► GitHub ──Render picks up──► https
 - **It sleeps after ~15 minutes** without traffic. The first request after idle can take ~30 seconds to wake up.
 - **The JSON file is ephemeral** on the free tier — users you create are stored on the running instance, but
   are **wiped on restart or redeploy**. The seeded users come back after every deploy.
-  → This is exactly why the "real database" upgrade (section 9) matters.
+  → This is exactly why the "real database" upgrade (section 10) matters.
 - **Redeploy automatically** every time you `git push` to `main`.
 
 ---
 
-## 7. What was tested (end-to-end)
+## 8. What was tested (end-to-end)
 
 - `GET /users` → returns the full list of users (JSON array).
 - `GET /users/1` → returns the first user.
@@ -233,7 +256,7 @@ Your machine ──git push──► GitHub ──Render picks up──► https
 
 ---
 
-## 8. Key concepts used in this project
+## 9. Key concepts used in this project
 
 | Concept | Where you saw it |
 |---|---|
@@ -250,7 +273,7 @@ Your machine ──git push──► GitHub ──Render picks up──► https
 
 ---
 
-## 9. What's next (potential improvements)
+## 10. What's next (potential improvements)
 
 - **Real database** — the biggest one now: on the free tier, your JSON file is wiped every redeploy. A real database
   (e.g., SQLite, or PostgreSQL on Render) makes your data survive restarts and handles concurrent writes.
