@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "address": "123 Main St",
+    "phone": "+1-202-555-0101"
+  },
+  {
+    "id": 2,
+    "name": "Emily Johnson",
+    "email": "emily.johnson@example.com",
+    "address": "456 Oak St",
+    "phone": "+1-202-555-0102"
+  },
+  {
+    "id": 3,
+    "name": "Michael Brown",
+    "email": "michael.brown@example.com",
+    "address": "789 Pine St",
+    "phone": "+1-202-555-0103"
+  },
+  {
+    "id": 4,
+    "name": "Sarah Williams",
+    "email": "sarah.williams@example.com",
+    "address": "321 Maple St",
+    "phone": "+1-202-555-0104"
+  },
+  {
+    "id": 5,
+    "name": "David Davis",
+    "email": "david.davis@example.com",
+    "address": "654 Cedar St",
+    "phone": "+1-202-555-0105"
+  },
+  {
+    "id": 6,
+    "name": "joaotste",
+    "email": "j.gabrielreisaraujo1@gmail.com",
+    "phone": "31232031023",
+    "address": "R. Arnaldo Lopes da Silva, 341"
+  },
+  {
+    "id": 7,
+    "name": "Test User",
+    "email": "test.user@example.com",
+    "phone": "555-0100",
+    "address": "123 Test St, Testville"
+  },
+  {
+    "id": 8,
+    "name": "john kyle",
+    "email": "fcbrf34@gamil.com",
+    "phone": "410103",
+    "address": "likutt street"
+  },
+  {
+    "id": 9,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "555-0123",
+    "address": "123 Main Street, Springfield, IL 62701"
+  },
+  {
+    "id": 10,
+    "name": "Arthur",
+    "email": "arthur.mitchell@gmail.com",
+    "phone": "555-0847",
+    "address": "742 Evergreen Terrace, Springfield, IL 62701"
+  },
+  {
+    "id": 11,
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@gmail.com",
+    "phone": "(555) 234-7891",
+    "address": "742 Maple Street, Portland, OR 97214"
+  },
+  {
+    "id": 12,
+    "name": "Michael Chen",
+    "email": "michael.chen@gmail.com",
+    "phone": "+1-415-237-1234",
+    "address": "742 Maple Street, San Francisco, CA 94117"
+  },
+  {
+    "id": 13,
+    "name": "Gabriel",
+    "email": "ggga@gmail.com",
+    "phone": "3123312",
+    "address": "rua s"
+  },
+  {
+    "id": 14,
+    "name": "Test",
+    "email": "t@t.com",
+    "phone": "123",
+    "address": "street"
+  },
+  {
+    "id": 15,
+    "name": "Ga",
+    "email": "ffs@",
+    "phone": "312312",
+    "address": "13123"
+  },
+  {
+    "id": 16,
+    "name": "Kyle",
+    "email": "test@test.com",
+    "phone": "345123",
+    "address": "345345"
+  },
+  {
+    "id": 17,
+    "name": "Caleb Jenkins",
+    "email": "caleb.jenkins92@gmail.com",
+    "phone": "206-555-0143",
+    "address": "1428 Elm Street, Seattle, WA 98101"
+  },
+  {
+    "id": 18,
+    "name": "Sarah Jenkins",
+    "email": "sarah.jenkins89@gmail.com",
+    "phone": "+1-206-555-0143",
+    "address": "123 Maple Street, Seattle, WA 98101"
+  },
+  {
+    "id": 19,
+    "name": "Jillybenan",
+    "email": "jisjs@gmail.com",
+    "phone": "23123123",
+    "address": "Main st22"
+  },
+  {
+    "id": 20,
+    "name": "Yeau Ramirez",
+    "email": "yeau.ramirez@example.com",
+    "phone": "+1-555-019-2834",
+    "address": "1284 Maple Street, Seattle, WA 98101"
+  }
+]
