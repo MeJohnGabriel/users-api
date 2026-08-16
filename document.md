@@ -1,6 +1,7 @@
 # Users API — Project Documentation
 
 Your first real API, built with Express, replacing the fake `users.json` approach.
+It is deployed and **live on the internet** at `https://users-api-lowp.onrender.com`.
 
 ---
 
@@ -16,22 +17,26 @@ Think of an API as a waiter in a restaurant:
 
 ## 2. Architecture overview
 
-The project now has **3 layers**:
+The project has **3 local layers**, plus **GitHub** and **Render** when deployed:
 
 ```
 MCP Client (src/client.ts)          MCP Server (src/server.ts)           Real API (api/index.ts)           api/data/users.json
        (asks you questions)          (exposes tools/resources)          (Express, port 3000)               (the "database")
 ```
 
-| Layer | File | Role |
+| Layer | File / URL | Role |
 |---|---|---|
 | MCP Client | `src/client.ts` | Interactive CLI. Asks you questions, calls tools/resources, handles sampling. |
-| MCP Server | `src/server.ts` | Exposes tools + resources. Calls the real API over HTTP instead of touching files. |
-| Real API | `api/index.ts` | Express web server on `http://localhost:3000`. Owns all data access. |
+| MCP Server | `src/server.ts` | Exposes tools + resources. Calls the API over HTTP instead of touching files. |
+| Real API | `api/index.ts` | Express web server. Runs locally on port 3000, or on Render via the `PORT` env var. |
 | Data | `api/data/users.json` | The JSON file the API reads/writes (your "database"). |
+| GitHub | `github.com/MeJohnGabriel/users-api` | Cloud copy of the code that Render builds from. |
+| Render | `https://users-api-lowp.onrender.com` | Free web host that runs your API on the internet. |
 
 **The key change:** the MCP server no longer reads/writes `users.json` directly.
 It now calls your API over HTTP with `fetch` (`src/server.ts:15-47`).
+The API's address comes from the `API_BASE_URL` env var (default `http://localhost:3000`),
+so you can point the MCP server at the deployed API whenever you want.
 
 ---
 
@@ -45,15 +50,20 @@ It now calls your API over HTTP with `fetch` (`src/server.ts:15-47`).
 
 Example:
 
+The same endpoints exist on the local API and the deployed one:
+
+- Local: `http://localhost:3000/users`
+- Deployed: `https://users-api-lowp.onrender.com/users`
+
 ```bash
-# List all users
-curl http://localhost:3000/users
+# List all users (deployed)
+curl https://users-api-lowp.onrender.com/users
 
-# Get one user
-curl http://localhost:3000/users/1
+# Get one user (deployed)
+curl https://users-api-lowp.onrender.com/users/1
 
-# Create a user
-curl -X POST http://localhost:3000/users \
+# Create a user (deployed)
+curl -X POST https://users-api-lowp.onrender.com/users \
   -H "Content-Type: application/json" \
   -d '{"name":"Joao","email":"joao@example.com","phone":"555-1234","address":"1 API Street"}'
 ```
@@ -112,6 +122,25 @@ Other useful scripts:
 ```bash
 npm run server:dev     # Run the MCP server with tsx (no build needed)
 npm run server:inspect # Open the MCP inspector UI
+npm start              # Production start command (the one Render runs)
+```
+
+### Pointing the MCP server at the deployed API
+
+By default the MCP server calls `http://localhost:3000`. To use the deployed API instead:
+
+```powershell
+$env:API_BASE_URL = "https://users-api-lowp.onrender.com"
+npm run server:build   # recompile server.ts so it reads the env var
+npm run client:dev     # the MCP server now talks to the deployed API
+```
+
+To switch back to the local API:
+
+```powershell
+Remove-Item Env:API_BASE_URL
+npm run server:build
+npm run client:dev
 ```
 
 ### Handy commands for beginners (Windows / PowerShell)
@@ -154,18 +183,52 @@ npm install
 
 ---
 
-## 6. What was tested (end-to-end)
+## 6. Deployment (Render)
 
-- `GET /users` → returns all 17 seeded users.
+Your API is **online** — anyone in the world can call it at `https://users-api-lowp.onrender.com`.
+
+### How it works
+
+```
+Your machine ──git push──► GitHub ──Render picks up──► https://users-api-lowp.onrender.com
+```
+
+1. You `git push` your code to the GitHub repo `MeJohnGabriel/users-api`.
+2. Render watches that repo. On every push it installs dependencies (`npm install`) and starts the API (`npm start`).
+3. Your API becomes reachable at the public URL.
+
+### How we prepared the code for production
+
+| Change | File | Why |
+|---|---|---|
+| `PORT` read from env | `api/index.ts` | Render assigns a random port to each service; we must respect it instead of hardcoding 3000. |
+| `API_BASE_URL` read from env | `src/server.ts` | Lets the MCP server point at the deployed API instead of localhost. |
+| `start` script | `package.json` | The command Render runs to launch the API (`tsx api/index.ts`). |
+| `.gitignore` | project root | Keeps `node_modules/`, `build/`, and `.env` out of git. |
+
+### Free-tier caveats (important)
+
+- **It sleeps after ~15 minutes** without traffic. The first request after idle can take ~30 seconds to wake up.
+- **The JSON file is ephemeral** on the free tier — users you create are stored on the running instance, but
+  are **wiped on restart or redeploy**. The seeded users come back after every deploy.
+  → This is exactly why the "real database" upgrade (section 9) matters.
+- **Redeploy automatically** every time you `git push` to `main`.
+
+---
+
+## 7. What was tested (end-to-end)
+
+- `GET /users` → returns the full list of users (JSON array).
 - `GET /users/1` → returns the first user.
 - `POST /users` → creates a user and returns its new id.
-- MCP `create-user` tool → created user 18 through the API, confirmed via `GET /users/18`.
+- Deployed API: `GET /users` and `POST /users` verified on `https://users-api-lowp.onrender.com`.
+- MCP `create-user` tool → creates a user through the API.
 - MCP `users` resource → returns the API's list.
 - All TypeScript compiles cleanly (`tsc --noEmit`).
 
 ---
 
-## 7. Key concepts used in this project
+## 8. Key concepts used in this project
 
 | Concept | Where you saw it |
 |---|---|
@@ -177,12 +240,16 @@ npm install
 | URL params | `req.params.id` in `GET /users/:id` |
 | Fetch client | `fetch()` in `src/server.ts` calls the API over HTTP |
 | Persistence | `readFile`/`writeFile` in `api/index.ts` manage the JSON file |
+| Environment variables | `PORT` (API) and `API_BASE_URL` (MCP server) configure where each piece runs |
+| Deployment | GitHub hosts the code; Render builds it and serves it at a public URL |
 
 ---
 
-## 8. What's next (potential improvements)
+## 9. What's next (potential improvements)
 
+- **Real database** — the biggest one now: on the free tier, your JSON file is wiped every redeploy. A real database
+  (e.g., SQLite, or PostgreSQL on Render) makes your data survive restarts and handles concurrent writes.
 - **Update + delete endpoints** — only create + list were built by design. Add `PUT /users/:id` and `DELETE /users/:id` for full CRUD.
-- **Real database** — a JSON file is fine for learning but can't handle concurrent writes. SQLite is the natural upgrade.
 - **Error handling** — if the API is down, tools just return "Failed". Add retries or clearer error messages.
 - **Validation** — the API checks types, but you could add stricter validation (e.g., zod) on the API side.
+- **Deploy pipeline** — Render already redeploys on every `git push`; you could add a production-only config (e.g., set `NODE_ENV=production`).
