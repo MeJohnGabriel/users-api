@@ -35,8 +35,9 @@ MCP Client (src/client.ts)          MCP Server (src/server.ts)           Real AP
 
 **The key change:** the MCP server no longer reads/writes `users.json` directly.
 It now calls your API over HTTP with `fetch` (`src/server.ts:15-47`).
-The API's address comes from the `API_BASE_URL` env var (default `http://localhost:3000`),
-so you can point the MCP server at the deployed API whenever you want.
+The API's address comes from the `API_BASE_URL` env var — the **default is now the deployed API**
+(`https://users-api-lowp.onrender.com`), so creating a user through the MCP client stores it online.
+You can override it to `http://localhost:3000` to use the local API instead.
 
 ---
 
@@ -94,28 +95,32 @@ Client → MCP Server → GET /users/:id → API reads file → JSON object or 4
 
 ## 5. How to run it
 
-> The API **must be running** before the MCP server/client, otherwise tools fail.
+The MCP client **defaults to the deployed API** (`https://users-api-lowp.onrender.com`), so to use the tools
+you only need the client running — the online API is always up:
 
 ```bash
-npm run api:dev        # Terminal 1 — starts the API on http://localhost:3000
 npm run server:build   # Rebuild the MCP server after TS changes (tsc)
-npm run client:dev     # Terminal 2 — starts the interactive MCP client
+npm run client:dev     # Terminal — starts the interactive MCP client (talks to Render by default)
 ```
 
-### Restarting the server
+### Using the local API instead
 
-The API runs as a **separate process** — it is not started automatically. If you close the terminal
-or stop the process (e.g. to make code changes), you must restart it before using the tools:
+For local development, start the local API and point the MCP server at it:
 
 ```bash
-npm run api:dev        # Terminal 1 — (re)start the API
-npm run client:dev     # Terminal 2 — (re)start the MCP client
+npm run api:dev        # Terminal 1 — starts the local API on http://localhost:3000
 ```
 
-> If you run a tool while the API is down, you'll see an error like
-> `Failed to create user: fetch failed`. Just start the API again and retry.
+```powershell
+$env:API_BASE_URL = "http://localhost:3000"
+npm run server:build   # recompile server.ts so it reads the env var
+npm run client:dev     # Terminal 2 — the MCP server now talks to the local API
+```
 
-Remember: **one terminal for the API (`npm run api:dev`), one for the client (`npm run client:dev`).**
+> If you point at the local API but it isn't running, you'll see an error like
+> `Failed to create user: fetch failed`. Start it with `npm run api:dev` and retry.
+
+Remember: **when using the local API, one terminal for the API (`npm run api:dev`), one for the client (`npm run client:dev`).**
 
 Other useful scripts:
 
@@ -125,9 +130,9 @@ npm run server:inspect # Open the MCP inspector UI
 npm start              # Production start command (the one Render runs)
 ```
 
-### Pointing the MCP server at the deployed API
+### Pointing the MCP server back to the deployed API
 
-By default the MCP server calls `http://localhost:3000`. To use the deployed API instead:
+If you switched to local and want the deployed API again:
 
 ```powershell
 $env:API_BASE_URL = "https://users-api-lowp.onrender.com"
@@ -135,7 +140,7 @@ npm run server:build   # recompile server.ts so it reads the env var
 npm run client:dev     # the MCP server now talks to the deployed API
 ```
 
-To switch back to the local API:
+To use the deployed API again, just clear the env var (the code default is Render):
 
 ```powershell
 Remove-Item Env:API_BASE_URL
@@ -202,7 +207,7 @@ Your machine ──git push──► GitHub ──Render picks up──► https
 | Change | File | Why |
 |---|---|---|
 | `PORT` read from env | `api/index.ts` | Render assigns a random port to each service; we must respect it instead of hardcoding 3000. |
-| `API_BASE_URL` read from env | `src/server.ts` | Lets the MCP server point at the deployed API instead of localhost. |
+| `API_BASE_URL` read from env | `src/server.ts` | Defaults to the deployed URL — the MCP server stores users online by default. Override for local. |
 | `start` script | `package.json` | The command Render runs to launch the API (`tsx api/index.ts`). |
 | `.gitignore` | project root | Keeps `node_modules/`, `build/`, and `.env` out of git. |
 

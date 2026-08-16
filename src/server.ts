@@ -2,7 +2,8 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000";
+const API_BASE_URL =
+  process.env.API_BASE_URL ?? "https://users-api-lowp.onrender.com";
 
 type User = {
   id: number;
