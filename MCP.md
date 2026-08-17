@@ -97,11 +97,14 @@ Each package is a small, isolated program. They communicate **only** through MCP
 | `handlerQuery(tools)` | "Query" mode: takes your question, hands the server's tools to Gemini, and lets the AI decide which tool to call. |
 | `handleTool(tool)` | "Tools" mode: asks YOU for each argument, calls the tool on the server, prints the result. |
 | `handlePrompt(prompt)` | "Prompts" mode: asks YOU for the prompt's arguments, gets the prompt's messages from the server, and runs them through Gemini. |
-| `handleResource(uri)` | "Resources" mode: reads a resource from the server (fills in `{userId}` from you) and prints it nicely. |
+| `handleResource(uri)` | Shared helper: reads a resource from the server (fills in `{userId}` from you) and prints it nicely. Used by both Resources and Resource Templates. |
 | `handlerServerMessage(message)` | The sampling helper: extracts the text, shows it to you, asks "Would you like to run this prompt?", and generates the answer with Gemini if you agree. |
 | `handleServerMessagePrompt(message)` | Same idea but for **prompt** messages — shows the message, confirms with you, generates with Gemini. |
 
-**The menu pattern:** after connecting, `main()` shows options (Query / Tools / Prompts / Resources) in a loop forever. Every option is "ask the user, then ask the server, then print."
+**The menu pattern:** after connecting, `main()` shows options (Query / Tools / Prompts / Resources / Resource Templates) in a loop forever. Every option is "ask the user, then ask the server, then print."
+
+- **Resources** — static, fixed URIs (e.g. `users://all`). Selecting one reads it directly.
+- **Resource Templates** — parameterized URIs (e.g. `users://{userId}/profile`). The client detects placeholders like `{userId}`, prompts you for the value, resolves the URI, and then reads it.
 
 ---
 
@@ -122,6 +125,21 @@ Each package is a small, isolated program. They communicate **only** through MCP
 npm run server:build   # 1. compile the server (after code changes)
 npm run client:dev     # 2. run the client (it launches the server itself)
 ```
+
+### 6.1 Authentication: Development vs Production
+
+| Environment | Auth | How |
+|---|---|---|
+| **Development** (`server:inspect`) | Disabled | `DANGEROUSLY_OMIT_AUTH=true` skips OAuth so you can debug freely |
+| **Production** | Required | Server acts as an **OAuth 2.0 Authorization Server** — clients must login, get a token, and present it on every request |
+
+**In production you'd:**
+- Remove `DANGEROUSLY_OMIT_AUTH=true`
+- Configure OAuth (Auth0, GitHub OAuth, or custom provider)
+- Enforce Bearer token validation on all MCP requests
+- Serve over HTTPS only
+
+The `@modelcontextprotocol/server` package has built-in OAuth support — you just point it at your identity provider.
 
 ---
 

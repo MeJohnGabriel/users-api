@@ -111,29 +111,29 @@ async function main() {
       case "Resources":
         const resourceUri = await select({
           message: "Select a resource",
-          choices: [
-            ...resources.map((resource) => ({
-              name: resource.name,
-              value: resource.uri,
-              description: resource.description,
-            })),
-            ...resourceTemplates.map((template) => ({
-              name: template.name,
-              value: template.uriTemplate,
-              description: template.description,
-            })),
-          ],
+          choices: resources.map((resource) => ({
+            name: resource.name,
+            value: resource.uri,
+            description: resource.description,
+          })),
         });
-        const uri =
-          resources.find((resource) => resource.uri === resourceUri)?.uri ??
-          resourceTemplates.find(
-            (template) => template.uriTemplate === resourceUri,
-          )?.uriTemplate;
+        const uri = resources.find((resource) => resource.uri === resourceUri)?.uri;
         if (!uri) {
           console.error(`Resource not found`);
         } else {
           await handleResource(uri);
         }
+        break;
+      case "Resource Templates":
+        const templateUri = await select({
+          message: "Select a resource template",
+          choices: resourceTemplates.map((template) => ({
+            name: template.name,
+            value: template.uriTemplate,
+            description: template.description,
+          })),
+        });
+        await handleResource(templateUri);
         break;
     }
   }
